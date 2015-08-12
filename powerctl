@@ -1,0 +1,73 @@
+#!/bin/bash
+# build_ara_image.sh
+#
+# Copyright (c) 2015 Google, Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 1. Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+# 3. Neither the name of the copyright holder nor the names of its
+# contributors may be used to endorse or promote products derived from this
+# software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+USAGE="USAGE:
+  `basename $0` <board-name> <power-state>
+Arguments:
+  <board-name> = bdb or jetson
+  <power-state> = 0 (off) or 1 (on)
+"
+
+if  [ "$#" -ne 2 ] ; then
+  echo "`basename $0`: Required args missing."
+  echo "$USAGE"
+  exit -1
+#capture parameters for board  & image
+fi
+
+case $1 in
+        "all")
+	    if [ $2 == "0" ] ; then
+		# all off
+		relayctl 4 0 && relayctl 3 0 && relayctl 2 0 && relayctl 1 0
+	    fi
+	    ;;
+        "bdb")
+	    if [ $2 == "0" ] ; then
+		# 12VDC off
+		relayctl 4 0
+	    else
+		# 12VDC on
+		relayctl 4 1
+	    fi
+            ;;
+        "jetson")
+	    if [ $2 == "0" ] ; then
+		relayctl 3 0 && relayctl 2 0
+	    else
+		# power button up
+		relayctl 2 0
+		# 12VDC on
+		relayctl 3 1
+		# power button down-up
+		relayctl 2 1 && relayctl 2 0
+	    fi
+            ;;
+esac
+
