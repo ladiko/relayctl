@@ -29,7 +29,7 @@
 USAGE="USAGE:
   `basename $0` <board-name> <power-state>
 Arguments:
-  <board-name> = bdb or jetson
+  <board-name> = bdb, jetson, sdb, or helium
   <power-state> = 0 (off) or 1 (on)
 "
 
@@ -57,6 +57,29 @@ case $1 in
 	    fi
             ;;
         "jetson")
+	    if [ $2 == "0" ] ; then
+		relayctl 3 0 && relayctl 2 0
+	    else
+		# power button up
+		relayctl 2 0
+		# 12VDC on
+		relayctl 3 1
+		# power button down-up
+		relayctl 2 1 
+		sleep 0.5s
+		relayctl 2 0
+	    fi
+            ;;
+        "sdb")
+	    if [ $2 == "0" ] ; then
+		# 12VDC off
+		relayctl 4 0
+	    else
+		# 12VDC on
+		relayctl 4 1
+	    fi
+            ;;
+        "helium")
 	    if [ $2 == "0" ] ; then
 		relayctl 3 0 && relayctl 2 0
 	    else
